@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,21 +14,24 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
+@Data
 public class Transaction {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	
 	private Date date;
-	
 	private double amount;
-	
 	private String detail1;
 	private String detail2;
+	@Enumerated(EnumType.STRING)
 	private TransactionState state;
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Transaction parent;
-	@OneToMany(mappedBy="parent", fetch=FetchType.LAZY)
-	private List<Transaction> splits;
+	@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+	private List<Transaction> children;
 }
