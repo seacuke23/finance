@@ -10,12 +10,14 @@ import javax.persistence.OneToMany;
 import com.md.finance.model.Transaction;
 import com.md.finance.model.TransactionState;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class TransactionDTO {
 	private Long id;
 	private Date date;
@@ -25,4 +27,5 @@ public class TransactionDTO {
 	private TransactionState state;
 	private Long parent;
 	private List<Long> children;
+	private Long category;
 }

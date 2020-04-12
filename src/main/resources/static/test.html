@@ -6,7 +6,19 @@
 </head>
 <body>
 <form action="/test" method="post" enctype="multipart/form-data">
+<table><tr><td>
 <input type="file" name="fileToUpload" id="fileToUpload">
-<input type="submit" value="Upload CSV" name="submit"></form>
+</td></tr>
+<tr><td>
+<select id="bankType" name="bankType">
+  <option value="RBC">RBC</option>
+  <option value="Tangerine">Tangerine</option>
+  </select>
+</td></tr>
+<tr><td>
+<input type="submit" value="Upload CSV" name="submit">
+</td></tr>
+</table>
+</form>
 </body>
 </html>

@@ -6,8 +6,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.md.finance.controller.csv.CSVTransactionMapper;
+import com.md.finance.controller.csv.CSVTransactionMapping;
+import com.md.finance.controller.csv.exception.MissingMappingException;
 import com.md.finance.dto.TransactionDTO;
 import com.md.finance.dto.mapping.TransactionMapper;
 import com.md.finance.model.Transaction;
@@ -25,23 +31,32 @@ import com.opencsv.CSVIterator;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
+import lombok.extern.log4j.Log4j2;
+
 @RestController
+@Log4j2
 public class TransactionController {
 	@Autowired
 	private TransactionMapper mapper;
 	@Autowired
 	private TransactionService txService;
+	
 
 	private static final SimpleDateFormat SDF = new SimpleDateFormat("MM/dd/yyyy");
 
 	@GetMapping("/test")
-	public TransactionDTO getTransaction() {
-		Transaction t = new Transaction();
-		t.setId(1234);
-		t.setDate(new Date());
-		t.setDetail1("det1");
-		t.setDetail2("det2");
-		return mapper.transactionToTransactionDTO(t);
+	public List<TransactionDTO> getTransaction() {
+		ArrayList<TransactionDTO> transactions = new ArrayList<>();
+		for (int i = 0; i < 5; i++) {
+			Transaction t = new Transaction();
+			t.setId(1234l + i);
+			t.setDate(new Date());
+			t.setDetail1("det1" + i);
+			t.setDetail2("det2" + i);
+			t.setState(TransactionState.UNVERIFIED);
+			transactions.add(mapper.transactionToTransactionDTO(t));
+		}
+		return transactions;
 		// return TransactionDTO.builder().id(1l).date(new
 		// Date()).amount(123).detail1("detail1").detail2("detail2").state(TransactionState.UNVERIFIED).build();
 		// return new TransactionDTO(1l, new Date(), 123, "detail1", "detail2",
@@ -49,14 +64,19 @@ public class TransactionController {
 	}
 
 	@PostMapping("/test")
-	public void getTheFile(@RequestParam("fileToUpload") MultipartFile file, RedirectAttributes redirectAttributes) {
+	public void getTheFile(@RequestParam("fileToUpload") MultipartFile file,@RequestParam("bankType") String bank, RedirectAttributes redirectAttributes) {
 		try {
+			log.debug("Transaction file uploaded of type '{}'", bank);
+			log.info("infolog");
 			CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()));
 			ArrayList<TransactionDTO> txs = new ArrayList<>();
-			String[] nextLine;
+			String[] nextLine = reader.readNext();
+			//TODO check null on transaction mapping lookup
+			CSVTransactionMapper mapper = new CSVTransactionMapper(CSVTransactionMapping.getByName(bank), nextLine);
+			
 			while ((nextLine = reader.readNext()) != null) {
 				try {
-					txs.add(transactionFromCSVEntry(nextLine));
+					txs.add(mapper.getTransactionFromInputLine(nextLine));
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -71,6 +91,9 @@ public class TransactionController {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (MissingMappingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 

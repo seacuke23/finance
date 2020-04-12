@@ -14,8 +14,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -23,7 +25,7 @@ import lombok.Setter;
 public class Transaction {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private Long id;
 	private Date date;
 	private double amount;
 	private String detail1;
@@ -34,4 +36,6 @@ public class Transaction {
 	private Transaction parent;
 	@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
 	private List<Transaction> children;
+	@ManyToOne
+	private TransactionCategory category;
 }
