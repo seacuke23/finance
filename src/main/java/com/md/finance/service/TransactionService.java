@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.md.finance.dto.TransactionDTO;
 import com.md.finance.dto.mapping.TransactionMapper;
 import com.md.finance.model.Transaction;
+import com.md.finance.model.TransactionCategory;
+import com.md.finance.model.TransactionState;
 import com.md.finance.repository.TransactionRepository;
 
 @Service
@@ -22,7 +24,10 @@ public class TransactionService {
 	
 	public void addTransactions(List<TransactionDTO> transactions) {
 		List<Transaction> txs = transactions.stream().map(x->mapper.transactionDTOToTransaction(x)).collect(Collectors.toList());
-		System.out.println(txs);
-			repo.saveAll(txs);
+		repo.saveAll(txs);
+	}
+	
+	public List<TransactionDTO> findUnverifiedTransactions(){
+		return repo.findByState(TransactionState.UNVERIFIED).stream().map(x->mapper.transactionToTransactionDTO(x)).collect(Collectors.toList());
 	}
 }

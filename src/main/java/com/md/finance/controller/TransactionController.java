@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
@@ -44,23 +45,12 @@ public class TransactionController {
 
 	private static final SimpleDateFormat SDF = new SimpleDateFormat("MM/dd/yyyy");
 
-	@GetMapping("/test")
-	public List<TransactionDTO> getTransaction() {
-		ArrayList<TransactionDTO> transactions = new ArrayList<>();
-		for (int i = 0; i < 5; i++) {
-			Transaction t = new Transaction();
-			t.setId(1234l + i);
-			t.setDate(new Date());
-			t.setDetail1("det1" + i);
-			t.setDetail2("det2" + i);
-			t.setState(TransactionState.UNVERIFIED);
-			transactions.add(mapper.transactionToTransactionDTO(t));
+	@GetMapping("/api/trans")
+	public List<TransactionDTO> getTransaction(@RequestParam Optional<Boolean> unverified) {
+		if(unverified.orElseGet(()->false)) {
+			return txService.findUnverifiedTransactions();
 		}
-		return transactions;
-		// return TransactionDTO.builder().id(1l).date(new
-		// Date()).amount(123).detail1("detail1").detail2("detail2").state(TransactionState.UNVERIFIED).build();
-		// return new TransactionDTO(1l, new Date(), 123, "detail1", "detail2",
-		// TransactionState.UNVERIFIED, null, null);
+		return new ArrayList<>();
 	}
 
 	@PostMapping("/test")
