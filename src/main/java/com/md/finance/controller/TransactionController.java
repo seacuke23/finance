@@ -14,7 +14,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +28,7 @@ import com.md.finance.controller.csv.CSVTransactionMapping;
 import com.md.finance.controller.csv.exception.MissingMappingException;
 import com.md.finance.dto.TransactionDTO;
 import com.md.finance.dto.mapping.TransactionMapper;
+import com.md.finance.exception.service.ObjectNotFoundException;
 import com.md.finance.model.Transaction;
 import com.md.finance.model.TransactionState;
 import com.md.finance.service.TransactionService;
@@ -32,13 +36,13 @@ import com.opencsv.CSVIterator;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
+import io.swagger.annotations.Api;
 import lombok.extern.log4j.Log4j2;
 
+@Api(value = "trans", description = "the trans API")
 @RestController
 @Log4j2
 public class TransactionController {
-	@Autowired
-	private TransactionMapper mapper;
 	@Autowired
 	private TransactionService txService;
 	
@@ -46,15 +50,31 @@ public class TransactionController {
 	private static final SimpleDateFormat SDF = new SimpleDateFormat("MM/dd/yyyy");
 
 	@GetMapping("/api/trans")
-	public List<TransactionDTO> getTransaction(@RequestParam Optional<Boolean> unverified) {
-		if(unverified.orElseGet(()->false)) {
+	public List<TransactionDTO> getTransaction(@RequestParam Boolean unverified) {
+		if(Optional.ofNullable(unverified).orElseGet(()->false)) {
 			return txService.findUnverifiedTransactions();
 		}
 		return new ArrayList<>();
 	}
 
+	@GetMapping("/api/trans/{id}")
+	public TransactionDTO getTransaction(@PathVariable Long id) {
+		return txService.getTransaction(id).orElseThrow(()->new RuntimeException("id not found"));
+	}
+	
+	@PutMapping("/api/trans/{id}")
+	public void updateTransaction(@RequestBody TransactionDTO transaction, @PathVariable Long id) {
+		transaction.setId(id);
+		try {
+			txService.updateTransaction(transaction);
+		} catch (ObjectNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	//TODO look out for really big files
 	@PostMapping("/test")
-	public void getTheFile(@RequestParam("fileToUpload") MultipartFile file,@RequestParam("bankType") String bank, RedirectAttributes redirectAttributes) {
+	public void getTheFile(@RequestParam("fileToUpload") MultipartFile file,@RequestParam("bankType") String bank) {
 		try {
 			log.debug("Transaction file uploaded of type '{}'", bank);
 			log.info("infolog");
@@ -85,16 +105,5 @@ public class TransactionController {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-	}
-
-	private TransactionDTO transactionFromCSVEntry(String[] csv) throws ParseException {
-		TransactionDTO tx = new TransactionDTO();
-
-		tx.setAmount(Double.parseDouble(csv[6]));
-		tx.setDate(SDF.parse(csv[2]));
-		tx.setDetail1(csv[4]);
-		tx.setDetail2(csv[5]);
-		tx.setState(TransactionState.UNVERIFIED);
-		return tx;
 	}
 }

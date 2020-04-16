@@ -17,7 +17,7 @@ public class TransactionCategoryController {
 	@Autowired
 	private TransactionCategoryService service;
 
-	@GetMapping("trans_category")
+	@GetMapping("/api/trans_category")
 	public List<TransactionCategoryDTO> getCategories(){
 		return service.getCategories();
 	}

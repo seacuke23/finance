@@ -10,6 +10,7 @@ import javax.persistence.OneToMany;
 import com.md.finance.model.Transaction;
 import com.md.finance.model.TransactionState;
 
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ApiModel("Transaction")
 public class TransactionDTO {
 	private Long id;
 	private Date date;

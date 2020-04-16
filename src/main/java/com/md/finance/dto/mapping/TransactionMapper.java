@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import com.md.finance.dto.TransactionDTO;
@@ -24,6 +26,12 @@ public interface TransactionMapper {
 	@Mapping(target="children", ignore=true)
 	@Mapping(nullValuePropertyMappingStrategy=NullValuePropertyMappingStrategy.IGNORE, target="category")
 	Transaction transactionDTOToTransaction(TransactionDTO tx);
+	
+	@Mapping(target="parent", ignore=true)
+	@Mapping(target="children", ignore=true)
+	@Mapping( nullValueCheckStrategy=NullValueCheckStrategy.ALWAYS, nullValuePropertyMappingStrategy=NullValuePropertyMappingStrategy.SET_TO_NULL, target="category")
+	void updateTransactionFromDTO(TransactionDTO dto, @MappingTarget Transaction trans);
+	
 	
 	default List<Long> map(List<Transaction> value){
 		List<Long> mapped = new ArrayList<>();

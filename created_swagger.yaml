@@ -1,0 +1,74 @@
+swagger: "2.0"
+info:
+  description: "the description"
+  version: "1.0.0"
+  title: "Transactions"
+host: "localhost:9999"
+basePath: "/api"
+tags:
+  - name: "Transaction"
+    description: "Financial transactions."
+schemes:
+  - "http"
+paths:
+  /trans:
+    get:
+      tags:
+      - "Transaction"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: "unverified"
+        type: "boolean"
+        default: "false"
+      responses:
+        200:
+          description: "eventually there will be a real value here"
+          schema: 
+            type: array
+            items: 
+              $ref: "#/definitions/Transaction"
+definitions:
+  Transaction:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      date:
+        type: "string"
+        format: "date-time"
+      amount:
+        type: "number"
+        format: "double"
+      detail1:
+        type: "string"
+      detail2:
+        type: "string"
+      state:
+        type: "string"
+        enum:
+          - "UNVERIFIED"
+          - "VERIFIED"
+          - "SPLIT"
+      parentId:
+        type: "number"
+        format: "int64"
+      children:
+        type: "array"
+        items:
+          type: "number"
+          format: "int64"
+      categoryId:
+        type: "number"
+        format: "int64"
+  TransactionCategory:
+    type: "object"
+    properties:
+      id:
+        type: "number"
+        format: "int64"
+      name:
+        type: "string"
+        

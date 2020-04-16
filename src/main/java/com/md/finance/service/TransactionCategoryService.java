@@ -26,6 +26,7 @@ public class TransactionCategoryService {
 				.collect(Collectors.toList());
 	}
 	
+	//TODO return an optional here but have to change the mapper as well to deal with it
 	public TransactionCategory getCategory(Long id) {
 		return repo.findById(id).get();
 	}
