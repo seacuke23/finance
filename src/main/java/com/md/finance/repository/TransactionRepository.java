@@ -11,6 +11,6 @@ import com.md.finance.model.TransactionState;
 
 public interface TransactionRepository extends CrudRepository<Transaction, Long> {
 
-	@Query("select t from Transaction t where t.state = :state")
+	@Query("select t from Transaction t where t.state = :state order by t.date desc, id asc")
 	List<Transaction> findByState(@Param("state")TransactionState state);
 }

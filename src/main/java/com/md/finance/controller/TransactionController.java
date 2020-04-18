@@ -37,6 +37,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
 
 @Api(value = "trans", description = "the trans API")
@@ -49,20 +50,23 @@ public class TransactionController {
 
 	private static final SimpleDateFormat SDF = new SimpleDateFormat("MM/dd/yyyy");
 
-	@GetMapping("/api/trans")
-	public List<TransactionDTO> getTransaction(@RequestParam Boolean unverified) {
+    @ApiOperation(value = "", nickname = "getTransactions")
+	@GetMapping(value="/api/trans", produces= {"application/json"})
+	public List<TransactionDTO> getTransactions(@RequestParam Boolean unverified) {
 		if(Optional.ofNullable(unverified).orElseGet(()->false)) {
 			return txService.findUnverifiedTransactions();
 		}
 		return new ArrayList<>();
 	}
 
-	@GetMapping("/api/trans/{id}")
+    @ApiOperation(value = "", nickname = "getTransaction")
+	@GetMapping(value="/api/trans/{id}", produces= {"application/json"})
 	public TransactionDTO getTransaction(@PathVariable Long id) {
 		return txService.getTransaction(id).orElseThrow(()->new RuntimeException("id not found"));
 	}
-	
-	@PutMapping("/api/trans/{id}")
+
+    @ApiOperation(value = "", nickname = "updateTransaction")
+	@PutMapping(value="/api/trans/{id}", produces= {"application/json"})
 	public void updateTransaction(@RequestBody TransactionDTO transaction, @PathVariable Long id) {
 		transaction.setId(id);
 		try {
@@ -73,8 +77,9 @@ public class TransactionController {
 	}
 
 	//TODO look out for really big files
-	@PostMapping("/test")
-	public void getTheFile(@RequestParam("fileToUpload") MultipartFile file,@RequestParam("bankType") String bank) {
+    @ApiOperation(value = "", nickname = "uploadTransactions")
+	@PostMapping(value="/test", produces= {"application/json"})
+	public void uploadTransactions(@RequestParam("fileToUpload") MultipartFile file,@RequestParam("bankType") String bank) {
 		try {
 			log.debug("Transaction file uploaded of type '{}'", bank);
 			log.info("infolog");

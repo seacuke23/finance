@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.md.finance.dto.TransactionCategoryDTO;
 import com.md.finance.service.TransactionCategoryService;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
 
 @RestController
@@ -17,8 +18,9 @@ public class TransactionCategoryController {
 	@Autowired
 	private TransactionCategoryService service;
 
-	@GetMapping("/api/trans_category")
-	public List<TransactionCategoryDTO> getCategories(){
+    @ApiOperation(value = "", nickname = "getTransactionCategories")
+	@GetMapping(value="/api/trans_category", produces= {"application/json"})
+	public List<TransactionCategoryDTO> getTransactionCategories(){
 		return service.getCategories();
 	}
 }
